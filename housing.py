@@ -62,26 +62,29 @@ df['bathroom_times_stories'] = df['bathrooms']*df['stories']
 df['area_times_stories'] = df['area']*df['stories']
 
 def prepare(df):
-    
-    enc_data =pd.DataFrame(encoder.transform(df[['furnishingstatus']]))#.toarray())
-    #enc_data.columns = encoder.get_feature_names_out()
-    enc_data.columns = encoder.get_feature_names_out(['furnishingstatus'])
-    df = df.join(enc_data)
+    df1 = df.copy()
+    cat_cols = ['furnishingstatus']
+    encoded_data = encoder.transform(df1[cat_cols])
+    dense_data = encoded_data.todense()
+    df1_encoded = pd.DataFrame(dense_data, columns = encoder.get_feature_names_out())
 
-    df.drop(['furnishingstatus'],
-           axis=1,
-           inplace = True)
+    df1 = pd.concat([df1,df1_encoded],
+                    axis = 1)
+    df1.drop(cat_cols,
+             axis = 1,
+             inplace = True)
     
-    cols = df.columns
-    df = scaler.transform(df)
-    df = pd.DataFrame(df,columns=cols)
-    return df
-df = prepare(df)
-#st.write(df)
+    
+    cols = df1.columns
+    df1 = scaler.transform(df1)
+    df1 = pd.DataFrame(df1,columns=cols)
+    return df1
+df1 = prepare(df)
+#st.write(df1)
 
 
 model = pickle.load(open('model.pkl','rb'))
-predictions = model.predict(df)
+predictions = model.predict(df1)
 import time
 st.subheader('*House Price*')
 if st.button('*Click here to get the price of the **House***'):
