@@ -82,9 +82,11 @@ df = prepare(df)
 
 model = pickle.load(open('model.pkl','rb'))
 predictions = model.predict(df)
-
+import time
 st.subheader('*House Price*')
 if st.button('*Click here to get the price of the **House***'):
+    time.sleep(10)
     #st.write(predictions)
-    st.write(np.exp(predictions))
+    st.write(f'The house is valued at {np.exp(predictions).item()}')
+
     
